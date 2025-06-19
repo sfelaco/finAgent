@@ -22,14 +22,14 @@ from langsmith.utils import ContextThreadPoolExecutor
 
 if __name__ == "__main__":
     r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
-    print("In attesa di messaggi dalla coda Redis...")
+    print("Listeing to Redis queue for RSS feed items...")
     app = create_graph()
     loop = asyncio.get_event_loop()
     
     @traceable(name="invoke_graph")
     def process_message(msg):
         try:
-            print(f"Elaborazione del messaggio: {msg['title']}")
+            print(f"RSS item elaboration: {msg['title']}")
             thread_id = threading.get_ident()
             config = {"configurable": {"thread_id": thread_id}}
             # Crea un nuovo event loop per ogni thread
@@ -44,10 +44,10 @@ if __name__ == "__main__":
             response = new_loop.run_until_complete(coro)
             new_loop.close()
         except Exception as e:
-            print(f"Errore durante l'elaborazione del messaggio: {e}")
+            print(f"Internal error: {e}")  
 
    
-    with ContextThreadPoolExecutor(max_workers=3) as executor:
+    with ContextThreadPoolExecutor(max_workers=1) as executor:
         while True:
             try:
                 msg = r.brpop(REDIS_QUEUE, timeout=0)

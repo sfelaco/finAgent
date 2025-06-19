@@ -64,9 +64,13 @@ Always answer in {answer_language}.
     chain = prompt | structured_llm_news_analysis
     result = chain.invoke(input = {"answer_language": answer_language},  config=config)
     state["news_analysis"] = result
+    
+    print(f"{state['rss_title']} - {result.score}/5")
+    
     return {"news_analysis": result, "documents": documents, 
-            "answer_language": state["answer_language"], "thread_id": thread_id}
-  
+            "answer_language": state["answer_language"], "thread_id": thread_id,
+            "rss_title": state["rss_title"], "rss_link": state["rss_link"]}
+    
 
 if __name__ == "__main__":
     analysis(state={"question": "agent memory", "documents": None})

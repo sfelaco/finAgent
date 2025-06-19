@@ -1,0 +1,23 @@
+{
+    // -- other default or custom settings from before
+    "python.terminal.executeInFileDir": true,
+    "python.testing.pytestEnabled": true,
+    "python.testing.cwd": "${workspaceFolder}/src",
+    "launch": {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "Python: Current File",
+                "type": "debugpy",
+                "request": "launch",
+                "program": "${file}",
+                "console": "integratedTerminal",
+                "justMyCode": true,
+                "cwd": "${workspaceFolder}/src",
+                "purpose": [
+                    "debug-in-terminal"
+                ]
+            }
+        ]
+    }
+}

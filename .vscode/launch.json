@@ -1,0 +1,10 @@
+{
+  "name": "Run telegram_notifier",
+  "type": "python",
+  "request": "launch",
+  "module": "graph.nodes.telegram_notifier",
+  "cwd": "${workspaceFolder}/src",
+  "env": {
+    "PYTHONPATH": "${workspaceFolder}/src"
+  }
+}
