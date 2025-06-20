@@ -40,7 +40,7 @@ Assign a score to the identified opportunity.
 
 List all involved assets (stocks or ETFs) and clearly indicate their tickers.
 
-Provide detailed trading guidance (buy or sell, ideal entry price, recommended stop loss and take profit), and explain the reasoning behind your score.
+Explain the reasoning behind your score.
 
 Highlight any risks or uncertainties related to the trade.
 
