@@ -16,6 +16,7 @@ REDIS_QUEUE = os.getenv('REDIS_QUEUE', 'rss_feed')
 import threading
 from langsmith import traceable
 from langsmith.utils import ContextThreadPoolExecutor
+import uuid
 
 
 
@@ -26,11 +27,11 @@ if __name__ == "__main__":
     app = create_graph()
     loop = asyncio.get_event_loop()
     
-    @traceable(name="invoke_graph")
+    @traceable(name="invoke_news_analysis")
     def process_message(msg):
         try:
             print(f"RSS item elaboration: {msg['title']}")
-            thread_id = threading.get_ident()
+            thread_id = str(uuid.uuid4())
             config = {"configurable": {"thread_id": thread_id}}
             # Crea un nuovo event loop per ogni thread
             new_loop = asyncio.new_event_loop()

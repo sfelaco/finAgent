@@ -1,7 +1,7 @@
 import os
 import requests
 from typing import Any, Dict
-from graph.state import GraphState, NewsAnalysis
+from graph.state import GraphState, NewsScore
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -18,16 +18,21 @@ def telegram_notify(news_analysis: GraphState) -> Dict[str, Any]:
     # Estrai i dati richiesti
     rss_title = news_analysis.get("rss_title")
     rss_link = news_analysis.get("rss_link")
-    na = news_analysis.get("news_analysis")
+    na = news_analysis.get("news_scoring")
     if not rss_title or not rss_link or not na:
         raise ValueError("rss_title, rss_link e news_analysis sono obbligatori in GraphState!")
 
+    thread_id = news_analysis.get("thread_id", "unknown")
+    asset_links = [
+        f"<a href='http://localhost/thread_id={thread_id}&asset={asset}'>{asset}</a>"
+        for asset in na.assets
+    ]
     message = (
         f"\U0001F4F0 <b>News Alert</b>\n"
         f"<b>Title:</b> {rss_title}\n"
         f"<b>Link:</b> <a href='{rss_link}'>{rss_link}</a>\n\n"
         f"<b>Score:</b> {na.score}/5\n"
-        f"<b>Assets:</b> {', '.join(na.assets)}\n"
+        f"<b>Assets:</b> {', '.join(asset_links)}\n"
         f"<b>Description:</b> {na.description}"
     )
 
@@ -49,7 +54,7 @@ def telegram_notify(news_analysis: GraphState) -> Dict[str, Any]:
 if __name__ == "__main__":
     
     
-    news_analysis = NewsAnalysis(
+    news_analysis = NewsScore(
         assets=["SPY", "USO"],
         score = 4,
         description="Global stocks fell and oil futures rose on a report that the U.S. may soon strike Iran, raising concerns about a potential conflict in the Middle East.",)

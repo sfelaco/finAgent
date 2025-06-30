@@ -7,7 +7,7 @@ import mplfinance as mpf
 from typing import Annotated, List, Tuple
 import yfinance as yf
 
-@tool
+#@tool
 def get_stock_data_with_today(
         ticker_symbol: Annotated[
             str, "Ticker symbol of the stock (e.g., 'AAPL' for Apple)"

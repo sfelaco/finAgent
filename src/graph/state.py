@@ -2,7 +2,7 @@ from typing import List, TypedDict
 from pydantic import BaseModel, Field
 from langchain.schema import Document
 
-class NewsAnalysis(BaseModel):
+class NewsScore(BaseModel):
 
     score: int = Field(
         description="The score of the opportunity where 1 is the lowest value and 5 is the highest"
@@ -23,14 +23,17 @@ class GraphState(TypedDict):
         rss_link: link to the RSS feed
         documents: documents retrieved from the web search
         answer_language: language of the answer
-        news_analysis: answer to the news analysis
+        news_scoring: answer to the news analysis
         thread_id: identifier of the thread processing the request
+        asset_to_analyze: the asset to analyze in the thread
+        analysis_path: path to the analysis results
     """
 
     rss_title: str
     rss_link: str
     documents: Document
     answer_language: str
-    news_analysis: NewsAnalysis
+    news_scoring: NewsScore
     thread_id: int
-
+    asset_to_analyze: str
+    analysis_path: str
