@@ -24,7 +24,7 @@ def telegram_notify(news_analysis: GraphState) -> Dict[str, Any]:
 
     thread_id = news_analysis.get("thread_id", "unknown")
     asset_links = [
-        f"<a href='http://localhost/thread_id={thread_id}&asset={asset}'>{asset}</a>"
+        f"<a href='http://localhost:5000//asset-analysis?thread_id={thread_id}&asset={asset}'>{asset}</a>"
         for asset in na.assets
     ]
     message = (

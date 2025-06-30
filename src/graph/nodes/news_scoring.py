@@ -20,7 +20,7 @@ llm = ChatOpenAI(temperature=0.5, model="gpt-4.1")
 structured_llm_news_analysis = llm.with_structured_output(NewsScore)
 
 
-async def analysis(state: GraphState) -> Dict[str, Any]:
+def analysis(state: GraphState) -> Dict[str, Any]:
     print("---FINANCIAL ANALYSIS ---")
     documents = state["documents"]
     answer_language = state["answer_language"]

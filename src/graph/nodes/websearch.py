@@ -10,7 +10,7 @@ load_dotenv()
 web_search_tool = TavilySearch(max_results=3)
 
 
-async def web_search(state: GraphState) -> Dict[str, Any]:
+def web_search(state: GraphState) -> Dict[str, Any]:
     print("---WEB SEARCH---")
     rss_title = state["rss_title"]
     

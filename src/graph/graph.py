@@ -4,6 +4,7 @@ from graph.nodes.websearch import web_search
 from graph.nodes.telegram_notifier import telegram_notify
 from langgraph.graph import END, StateGraph
 from langgraph.checkpoint.redis import RedisSaver
+from langgraph.checkpoint.redis.aio import AsyncRedisSaver
 from graph.nodes.asset_analysis import human_feedback, asset_analysis
 from dotenv import load_dotenv
 import os
@@ -12,8 +13,8 @@ import os
 load_dotenv()
 
 def should_notify(state: GraphState) -> bool:
-    na = state.get("news_analysis")
-    if na is not None and hasattr(na, "score") and na.score >= 4:
+    na = state.get("news_scoring")
+    if na is not None and hasattr(na, "score") and na.score >= 1:
         return "NOTIFIER"
     else:
         return END
@@ -24,8 +25,10 @@ def create_graph() :
     REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
     
     
+    DB_URI = f"redis://{REDIS_HOST}:{REDIS_PORT}"
+    with RedisSaver.from_conn_string(DB_URI) as checkpointer:
     
-    with RedisSaver.from_conn_string("redis://" + REDIS_HOST + ":" + REDIS_PORT) as checkpointer:
+        checkpointer.setup()
     
         workflow = StateGraph(GraphState)
         workflow.add_node("WEBSEARCH", web_search)
@@ -47,6 +50,7 @@ def create_graph() :
             }
         )
         workflow.add_edge("NOTIFIER", "ASSET_ANALYSIS")
+        workflow.add_edge("ASSET_ANALYSIS", "HUMAN_FEEDBACK")
         workflow.add_edge("HUMAN_FEEDBACK", "ASSET_ANALYSIS")
         workflow.add_edge("ASSET_ANALYSIS", END)
         
