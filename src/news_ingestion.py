@@ -24,8 +24,10 @@ def fetch_and_publish():
             continue
         if not r.sismember(RSS_CACHE, link):
             item_json = json.dumps(entry, default=str)
-            print(item_json)
-            r.lpush(REDIS_QUEUE, item_json)
+            print(f"Publishing to channel {REDIS_QUEUE}: {entry.get('title', 'N/A')}")
+            # Pubblica il messaggio sul canale Redis
+            subscribers = r.publish(REDIS_QUEUE, item_json)
+            print(f"Messaggio pubblicato a {subscribers} sottoscrittori")
             r.sadd(RSS_CACHE, link)
 
 

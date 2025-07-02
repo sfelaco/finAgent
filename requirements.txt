@@ -3,6 +3,9 @@ ipython
 huggingface_hub
 matplotlib
 
+# Redis support
+redis>=4.5.0
+
 # financial libraries
 finnhub-python
 yfinance
@@ -44,3 +47,4 @@ unstructured==0.8.1
 python-dotenv==1.1.0
 FinRobot==0.1.5
 onnxruntime-directml==1.18.0
+Flask==2.3.3

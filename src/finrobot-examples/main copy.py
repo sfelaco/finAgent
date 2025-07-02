@@ -13,7 +13,7 @@ from finrobot.agents.workflow import SingleAssistantShadow
 from textwrap import dedent
 from matplotlib import pyplot as plt
 from PIL import Image
-
+from graph.tools.yfinance_tools import get_stock_data_with_today
 
 if __name__ == "__main__":
     
@@ -89,7 +89,7 @@ if __name__ == "__main__":
             "description": "retrieve market news related to designated company"
         },
         {
-            "function": MplFinanceUtils.plot_stock_price_chart,
+            "function":  get_stock_data_with_today, #MplFinanceUtils.plot_stock_price_chart,
             "name": "plot_stock_price_chart",
             "description": "plot stock price chart of designated company"
         }
@@ -98,7 +98,7 @@ if __name__ == "__main__":
     
     
     
-    company = "BRNT"
+    company = "TSLA"
 
     with Cache.disk() as cache:  # image cannot be cached
         list_chat: list[ChatResult] = autogen.initiate_chats(

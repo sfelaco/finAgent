@@ -9,7 +9,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import AIMessage, SystemMessage
 from langchain_core.prompts import SystemMessagePromptTemplate
 from pydantic import BaseModel, Field
-from graph.state import NewsAnalysis
+from graph.state import NewsScore
 
 load_dotenv()
 
@@ -17,11 +17,11 @@ load_dotenv()
 
 
 llm = ChatOpenAI(temperature=0.5, model="gpt-4.1")
-structured_llm_news_analysis = llm.with_structured_output(NewsAnalysis)
+structured_llm_news_analysis = llm.with_structured_output(NewsScore)
 
 
-async def analysis(state: GraphState) -> Dict[str, Any]:
-    print("---FINANCIAL ANALYSIS ---")
+def analysis(state: GraphState) -> Dict[str, Any]:
+    print("---NEWS ANALYSIS ---")
     documents = state["documents"]
     answer_language = state["answer_language"]
     
@@ -63,11 +63,10 @@ Always answer in {answer_language}.
     
     chain = prompt | structured_llm_news_analysis
     result = chain.invoke(input = {"answer_language": answer_language},  config=config)
-    state["news_analysis"] = result
     
     print(f"{state['rss_title']} - {result.score}/5")
     
-    return {"news_analysis": result, "documents": documents, 
+    return {"news_scoring": result, "documents": documents, 
             "answer_language": state["answer_language"], "thread_id": thread_id,
             "rss_title": state["rss_title"], "rss_link": state["rss_link"]}
     
