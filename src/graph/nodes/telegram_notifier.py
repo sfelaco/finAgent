@@ -4,6 +4,8 @@ import requests
 from typing import Any, Dict, cast
 from graph.state import GraphState, NewsScore
 from dotenv import load_dotenv
+from telegram import Bot, InlineKeyboardMarkup
+import asyncio
 
 load_dotenv()
 
@@ -11,6 +13,7 @@ def telegram_notify(state: GraphState) -> Dict[str, Any]:
     print("---TELEGRAM NOTIFIER ---")
     TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
     TELEGRAM_CHANNEL_ID = os.getenv("TELEGRAM_CHANNEL_ID")
+    TELEGRAM_GROUP_ID = os.getenv("TELEGRAM_GROUP_ID")
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHANNEL_ID:
         raise ValueError("Telegram token o channel id non configurati!")
     if not state:
@@ -29,14 +32,12 @@ def telegram_notify(state: GraphState) -> Dict[str, Any]:
     inline_keyboard = []
     for asset in na.assets:
         button = {
-            "text": f"📊 {asset}",
+            "text": f"\U0001F4C8 {asset}",
             "callback_data": f"asset_analysis_{asset}_{thread_id}"
         }
         inline_keyboard.append([button])
 
-    reply_markup = {
-        "inline_keyboard": inline_keyboard
-    }
+    
     
     message = (
         f"\U0001F4F0 <b>News Alert</b>\n"
@@ -45,23 +46,32 @@ def telegram_notify(state: GraphState) -> Dict[str, Any]:
         f"<b>Score:</b> {na.score}/5\n"
         f"<b>Assets:</b> {', '.join(na.assets)}\n"
         f"<b>Description:</b> {na.description}\n\n"
-        f"👆 Clicca sui bottoni per analizzare gli asset"
+        f"\U0001F447 Clicca sui bottoni per analizzare gli asset"
     )
+    
+    async def _send():
+        # Send to channel (no buttons)
+        await bot.send_message(
+            chat_id=TELEGRAM_CHANNEL_ID,
+            text=message,
+            parse_mode="HTML"
+        )
+        # Send to group (with buttons)
+        if TELEGRAM_GROUP_ID:
+            await bot.send_message(
+                chat_id=TELEGRAM_GROUP_ID,
+                text=message,
+                parse_mode="HTML",
+                reply_markup=InlineKeyboardMarkup(inline_keyboard)
+            )
 
-    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-    payload = {
-        "chat_id": TELEGRAM_CHANNEL_ID,
-        "text": message,
-        "parse_mode": "HTML",
-        #"reply_markup": json.dumps(reply_markup)
-    }
+    # Send to channel using python-telegram-bot
+    bot = Bot(token=TELEGRAM_BOT_TOKEN)
     try:
-        resp = requests.post(url, data=payload, timeout=10)
-        if resp.status_code != 200:
-            print(f"Telegram error: {resp.text}")
+        asyncio.run(_send())
     except Exception as e:
-        print(f"Internal error: {e}")
-    return {}
+        print(f"Telegram error: {e}")
+    return {k: state[k] for k in state}
 
 
 if __name__ == "__main__":
