@@ -34,6 +34,6 @@ class GraphState(TypedDict):
     documents: Document
     answer_language: str
     news_scoring: NewsScore
-    thread_id: int
+    thread_id: str
     asset_to_analyze: str
     analysis_path: str

@@ -1,46 +1,59 @@
 import os
+import json
 import requests
-from typing import Any, Dict
+from typing import Any, Dict, cast
 from graph.state import GraphState, NewsScore
 from dotenv import load_dotenv
 
 load_dotenv()
 
-def telegram_notify(news_analysis: GraphState) -> Dict[str, Any]:
+def telegram_notify(state: GraphState) -> Dict[str, Any]:
     print("---TELEGRAM NOTIFIER ---")
     TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
     TELEGRAM_CHANNEL_ID = os.getenv("TELEGRAM_CHANNEL_ID")
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHANNEL_ID:
         raise ValueError("Telegram token o channel id non configurati!")
-    if not news_analysis:
+    if not state:
         raise ValueError("news_analysis (GraphState) è obbligatorio!")
 
     # Estrai i dati richiesti
-    rss_title = news_analysis.get("rss_title")
-    rss_link = news_analysis.get("rss_link")
-    na = news_analysis.get("news_scoring")
+    rss_title = state.get("rss_title")
+    rss_link = state.get("rss_link")
+    na = state.get("news_scoring")
     if not rss_title or not rss_link or not na:
         raise ValueError("rss_title, rss_link e news_analysis sono obbligatori in GraphState!")
 
-    thread_id = news_analysis.get("thread_id", "unknown")
-    asset_links = [
-        f"<a href='http://localhost:5000//asset-analysis?thread_id={thread_id}&asset={asset}'>{asset}</a>"
-        for asset in na.assets
-    ]
+    thread_id = state.get("thread_id", "unknown")
+    
+    # Crea i bottoni inline per ogni asset
+    inline_keyboard = []
+    for asset in na.assets:
+        button = {
+            "text": f"📊 {asset}",
+            "callback_data": f"asset_analysis_{asset}_{thread_id}"
+        }
+        inline_keyboard.append([button])
+
+    reply_markup = {
+        "inline_keyboard": inline_keyboard
+    }
+    
     message = (
         f"\U0001F4F0 <b>News Alert</b>\n"
         f"<b>Title:</b> {rss_title}\n"
         f"<b>Link:</b> <a href='{rss_link}'>{rss_link}</a>\n\n"
         f"<b>Score:</b> {na.score}/5\n"
-        f"<b>Assets:</b> {', '.join(asset_links)}\n"
-        f"<b>Description:</b> {na.description}"
+        f"<b>Assets:</b> {', '.join(na.assets)}\n"
+        f"<b>Description:</b> {na.description}\n\n"
+        f"👆 Clicca sui bottoni per analizzare gli asset"
     )
 
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     payload = {
         "chat_id": TELEGRAM_CHANNEL_ID,
         "text": message,
-        "parse_mode": "HTML"
+        "parse_mode": "HTML",
+        #"reply_markup": json.dumps(reply_markup)
     }
     try:
         resp = requests.post(url, data=payload, timeout=10)
@@ -59,11 +72,15 @@ if __name__ == "__main__":
         score = 4,
         description="Global stocks fell and oil futures rose on a report that the U.S. may soon strike Iran, raising concerns about a potential conflict in the Middle East.",)
 
-    state = GraphState(
-        rss_title="U.S. Stocks Fall, Oil Rises on Iran Tensions",
-        rss_link="https://example.com/news/iran-tensions",
-        news_analysis=news_analysis
-    )
+    state = {
+        "rss_title": "U.S. Stocks Fall, Oil Rises on Iran Tensions",
+        "rss_link": "https://example.com/news/iran-tensions",
+        "news_scoring": news_analysis,
+        "thread_id": 12345,
+        "documents": None, 
+        "answer_language": "italian", 
+        "analysis_path": "" 
+    }
     # Act
-    result = telegram_notify(state)
+    result = telegram_notify(cast(GraphState, state))
     print(result)

@@ -105,7 +105,7 @@ class RedisSubscriber:
         
         try:
             from langsmith.utils import ContextThreadPoolExecutor
-            with ContextThreadPoolExecutor(max_workers=1) as executor:
+            with ContextThreadPoolExecutor(max_workers=3) as executor:
                 while self.running:
                     # Usa get_message() con timeout per non bloccare indefinitamente
                     message = self.pubsub.get_message(timeout=None)
@@ -222,16 +222,5 @@ def test_redis_pubsub():
         logger.error(f"❌ Errore connessione Redis: {str(e)}")
         return False
     
-    # Verifica stato canale
-    redis_subscriber._check_channel_status()
-    
-    # Test invio messaggio
-    logger.info("Invio messaggio di test...")
-    result = redis_subscriber.test_channel_connection()
-    
-    if result > 0:
-        logger.info(f"✅ Messaggio di test inviato con successo a {result} sottoscrittori")
-    else:
-        logger.warning("⚠️ Nessun sottoscrittore ha ricevuto il messaggio di test")
     
     return True

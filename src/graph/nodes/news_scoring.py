@@ -21,7 +21,7 @@ structured_llm_news_analysis = llm.with_structured_output(NewsScore)
 
 
 def analysis(state: GraphState) -> Dict[str, Any]:
-    print("---FINANCIAL ANALYSIS ---")
+    print("---NEWS ANALYSIS ---")
     documents = state["documents"]
     answer_language = state["answer_language"]
     
@@ -63,7 +63,6 @@ Always answer in {answer_language}.
     
     chain = prompt | structured_llm_news_analysis
     result = chain.invoke(input = {"answer_language": answer_language},  config=config)
-    state["news_analysis"] = result
     
     print(f"{state['rss_title']} - {result.score}/5")
     

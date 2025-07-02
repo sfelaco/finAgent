@@ -29,7 +29,6 @@ def fetch_and_publish():
             subscribers = r.publish(REDIS_QUEUE, item_json)
             print(f"Messaggio pubblicato a {subscribers} sottoscrittori")
             r.sadd(RSS_CACHE, link)
-            exit(0)
 
 
 

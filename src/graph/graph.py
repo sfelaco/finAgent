@@ -12,7 +12,7 @@ import os
 
 load_dotenv()
 
-def should_notify(state: GraphState) -> bool:
+def should_notify(state: GraphState) -> str:
     na = state.get("news_scoring")
     if na is not None and hasattr(na, "score") and na.score >= 1:
         return "NOTIFIER"
